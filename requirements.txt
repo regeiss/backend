@@ -1,0 +1,43 @@
+# Core Django
+Django==5.0.1
+djangorestframework==3.14.0
+
+# Authentication & Authorization
+djangorestframework-simplejwt==5.3.1
+
+# CORS
+django-cors-headers==4.3.1
+
+# Documentation - VERSÕES ESPECÍFICAS QUE FUNCIONAM JUNTAS
+drf-spectacular==0.27.0
+drf-spectacular-sidecar==2024.1.1
+
+# Database & Cache
+psycopg2-binary==2.9.9
+django-redis==5.4.0
+redis==5.0.1
+
+# Filtering & Pagination
+django-filter==23.5
+
+# Environment & Configuration
+python-decouple==3.8
+python-dotenv==1.0.0
+dj-database-url==3.0.1
+
+# Static Files & Media
+whitenoise==6.6.0
+Pillow==10.2.0
+
+# Background Tasks
+celery==5.3.6
+
+# Server
+gunicorn==21.2.0
+
+# Development & Debugging
+django-extensions==3.2.3
+django-debug-toolbar==4.2.0
+
+# Utils
+#python-cpf==1.0.0
