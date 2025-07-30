@@ -47,11 +47,6 @@ http {
             proxy_set_header X-Real-IP $remote_addr;
             proxy_redirect off;
             
-            # Timeouts
-            proxy_connect_timeout 30s;
-            proxy_send_timeout 30s;
-            proxy_read_timeout 30s;
-            
             # CORS headers para Flutter
             if ($request_method = 'OPTIONS') {
                 add_header 'Access-Control-Allow-Origin' '*' always;
@@ -79,7 +74,7 @@ http {
         # Health check endpoint para monitoramento
         location /nginx-health {
             access_log off;
-            return 200 "nginx healthy\n";
+            return 200 "healthy\n";
             add_header Content-Type text/plain;
         }
     }

@@ -12,9 +12,26 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me')
+SECRET_KEY = config('SECRET_KEY', default='*****************************')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+
+# CSRF Protection
+#CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv())
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Strict'
+CSRF_COOKIE_SECURE = True
+
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_HSTS_SECONDS = 31536000  # 1 ano
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+USE_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 INSTALLED_APPS = [
@@ -176,7 +193,7 @@ SPECTACULAR_SETTINGS = {
     
     # ✅ Configurações de path
     'SCHEMA_PATH_PREFIX': '/api/v1/',
-    'SCHEMA_PATH_PREFIX_TRIM': True,
+#    'SCHEMA_PATH_PREFIX_TRIM': True,
     
     # ✅ Configurações de autenticação para o Swagger
     'SWAGGER_UI_SETTINGS': {
@@ -319,4 +336,39 @@ if DEBUG:
     except ImportError:
         pass
 
-# ✅ Logging configuration
+# ✅ Logging de segurança
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'verbose': {
+#             'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+#             'style': '{',
+#         },
+#     },
+#     'handlers': {
+#         'file': {
+#             'level': 'INFO',
+#             'class': 'logging.FileHandler',
+#             'filename': '/app/logs/django.log',
+#             'formatter': 'verbose',
+#         },
+#         'security': {
+#             'level': 'WARNING',
+#             'class': 'logging.FileHandler',
+#             'filename': 'security.log',
+#             'formatter': 'verbose',
+#         },
+#     },
+#     'root': {
+#         'handlers': ['file'],
+#         'level': 'INFO',
+#     },
+#     'loggers': {
+#         'django.security': {
+#             'handlers': ['security'],
+#             'level': 'WARNING',
+#             'propagate': True,
+#         },
+#     },
+# }
