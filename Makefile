@@ -41,8 +41,8 @@ test: ## Executa os testes
 	docker compose exec backend python manage.py test
 
 inspectdb: ## Gera models das tabelas existentes
-	docker compose exec backend python manage.py inspectdb > backend/apps/cadastro/models_generated.py
-	@echo "Models gerados em backend/apps/cadastro/models_generated.py"
+	docker compose exec backend python manage.py inspectdb > apps/cadastro/models_generated.py
+	@echo "Models gerados em apps/cadastro/models_generated.py"
 
 collectstatic: ## Coleta arquivos estáticos
 	docker compose exec backend python manage.py collectstatic --noinput

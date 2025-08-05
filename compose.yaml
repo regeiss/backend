@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: cadastro_api
+    ports:
+      - "8001:8000"  # Bind para acesso externo
+    volumes:
+      - ./backend:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - logs_volume:/app/logs
+    depends_on:
+      - redis
+    environment:
+      - DEBUG=${DEBUG:-0}
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-change-me-in-production}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@10.13.66.8:5432/dev_cadastro_unificado}
+      - REDIS_URL=redis://redis:6379/0
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-novohamburgo.rs.gov.br,www.novohamburgo.rs.gov.br,localhost,127.0.0.1,10.13.65.37}
+      # HTTPS URLs atualizadas
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://10.13.65.37:8443,https://10.13.65.37:8001,https://10.13.65.37:3000}
+      # Configurações HTTPS para Django
+      - SECURE_SSL_REDIRECT=${SECURE_SSL_REDIRECT:-True}
+      - SECURE_PROXY_SSL_HEADER=${SECURE_PROXY_SSL_HEADER:-HTTP_X_FORWARDED_PROTO,https}
+      - USE_TLS=${USE_TLS:-True}
+    
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --reload --timeout 120
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: cadastro_redis
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:latest
+    container_name: cadastro_nginx
+    ports:
+      - "8081:80"   # HTTP (redirecionamento para HTTPS)
+      - "8443:443"  # HTTPS
+    volumes:
+      # Configuração Nginx
+      - type: bind
+        source: ${PWD}/nginx/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+      # Certificados SSL
+      - type: bind
+        source: ${PWD}/ssl
+        target: /etc/nginx/ssl
+        read_only: true
+      # Arquivos estáticos
+      - static_volume:/app/static:ro
+      - media_volume:/app/media:ro
+      # Logs do Nginx
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-k", "https://localhost/nginx-health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  static_volume:
+  media_volume:
+  redis_data:
+  nginx_logs:
+  logs_volume:

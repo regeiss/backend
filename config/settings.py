@@ -16,11 +16,15 @@ SECRET_KEY = config('SECRET_KEY', default='*****************************')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False 
 SESSION_COOKIE_SECURE = True
 
 # CSRF Protection
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv())
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS', 
+    default='https://10.13.65.37,https://10.13.65.37:8443,https://localhost:8443',
+    cast=Csv()
+)
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Strict'
 CSRF_COOKIE_SECURE = True
@@ -252,7 +256,7 @@ CORS_ALLOW_ALL_ORIGINS = True  # Apenas para desenvolvimento
 # Para produção:
 # CORS_ALLOWED_ORIGINS = [
 #     "https://yourdomain.com",
-#     "https://www.yourdomain.com",
+#     "https://www.yourdomain.com", 
 # ]
 
 CORS_ALLOW_CREDENTIALS = True

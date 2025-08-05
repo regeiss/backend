@@ -1,0 +1,81 @@
+.
+├── backend
+│   ├── apps
+│   │   ├── api
+│   │   │   ├── apps.py
+│   │   │   ├── health.py
+│   │   │   ├── __init__.py
+│   │   │   ├── serializers.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   ├── cadastro
+│   │   │   ├── admin.py
+│   │   │   ├── apps.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models_generated.py
+│   │   │   ├── models.py
+│   │   │   ├── serializers.py
+│   │   │   ├── tests.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   └── __init__.py
+│   ├── authentication
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── backend
+│   │   ├── media
+│   │   └── static
+│   ├── config
+│   │   ├── __init__.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── Dockerfile
+│   ├── entrypoint.sh
+│   ├── __init__.py
+│   ├── manage.py
+│   ├── media
+│   ├── nginx
+│   │   ├── nginx.conf
+│   │   ├── nginx.conf.backup.20250728_103342
+│   │   └── nginx-standalone-test.conf
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── scripts
+│   │   ├── corrige_dfr.sh
+│   │   ├── diagnosis.sh
+│   │   ├── restart.sh
+│   │   ├── setup_auth.sh
+│   │   ├── setup.sh
+│   │   ├── test_apy.py
+│   │   └── test_backend.sh
+│   ├── solve_nginx.sh
+│   ├── static
+│   └── utils
+│       ├── middleware.py
+│       └── validators.py
+├── docker-compose.yml
+├── frontend
+├── LICENSE.md
+├── Makefile
+├── nginx
+│   ├── nginx.conf
+│   └── nginx.conf.bkp
+├── README.md
+├── scripts
+│   ├── listaUsers.sh
+│   ├── manage_users.sh
+│   ├── security_verify.sh
+│   ├── setup.sh
+│   └── testeUsuario.sh
+├── ssl
+│   ├── ca_bundle_intermediate.crt
+│   ├── novohamburgo_rs_gov_br_chained.crt
+│   ├── novohamburgo_rs_gov_br.crt
+│   └── novohamburgo_rs_gov_br.key
+└── tree.txt
+
+18 directories, 60 files
