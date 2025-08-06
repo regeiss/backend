@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
 
 from django.db.models import Q
 from .models import (
@@ -38,9 +39,78 @@ class CepAtingidoViewSet(viewsets.ModelViewSet):
     filterset_fields = ['uf', 'municipio']
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Listar Responsáveis",
+        description="Retorna uma lista paginada de responsáveis familiares com filtros e busca",
+        tags=["Responsáveis"],
+        parameters=[
+            OpenApiParameter(name="search", description="Buscar por CPF, nome ou nome da mãe", type=str),
+            OpenApiParameter(name="status", description="Filtrar por status", type=str),
+            OpenApiParameter(name="bairro", description="Filtrar por bairro", type=str),
+            OpenApiParameter(name="cep", description="Filtrar por CEP", type=str),
+            OpenApiParameter(name="ordering", description="Ordenar por campo (- para descendente)", type=str),
+            OpenApiParameter(name="page", description="Número da página", type=int),
+        ],
+        examples=[
+            OpenApiExample(
+                "Busca por nome",
+                value={"search": "João Silva"},
+                description="Buscar responsáveis com nome contendo 'João Silva'"
+            ),
+            OpenApiExample(
+                "Filtro por status",
+                value={"status": "ativo"},
+                description="Filtrar apenas responsáveis ativos"
+            ),
+        ]
+    ),
+    create=extend_schema(
+        summary="Criar Responsável",
+        description="Cria um novo responsável familiar",
+        tags=["Responsáveis"],
+        examples=[
+            OpenApiExample(
+                "Responsável Completo",
+                value={
+                    "cpf": "12345678901",
+                    "nome": "João Silva",
+                    "nome_mae": "Maria Silva",
+                    "cep": "93000000",
+                    "bairro": "Centro",
+                    "status": "ativo"
+                },
+                description="Exemplo de criação de responsável"
+            ),
+        ]
+    ),
+    retrieve=extend_schema(
+        summary="Obter Responsável",
+        description="Retorna detalhes de um responsável específico",
+        tags=["Responsáveis"]
+    ),
+    update=extend_schema(
+        summary="Atualizar Responsável",
+        description="Atualiza todos os campos de um responsável",
+        tags=["Responsáveis"]
+    ),
+    partial_update=extend_schema(
+        summary="Atualizar Responsável Parcialmente",
+        description="Atualiza campos específicos de um responsável",
+        tags=["Responsáveis"]
+    ),
+    destroy=extend_schema(
+        summary="Excluir Responsável",
+        description="Remove um responsável do sistema",
+        tags=["Responsáveis"]
+    ),
+)
 class ResponsavelViewSet(viewsets.ModelViewSet):
     """
-    ViewSet para gerenciamento de Responsáveis
+    ViewSet para gerenciamento de Responsáveis Familiares
+    
+    Permite criar, listar, atualizar e excluir responsáveis familiares.
+    Inclui funcionalidades de busca, filtro e ordenação.
     """
     queryset = Responsavel.objects.all()
     serializer_class = ResponsavelSerializer
@@ -57,6 +127,12 @@ class ResponsavelViewSet(viewsets.ModelViewSet):
             return ResponsavelComDemandasSerializer
         return self.serializer_class
 
+    @extend_schema(
+        summary="Responsável com Membros",
+        description="Retorna responsável com lista completa de membros da família",
+        tags=["Responsáveis"],
+        responses={200: ResponsavelComMembrosSerializer}
+    )
     @action(detail=True, methods=['get'])
     def com_membros(self, request, pk=None):
         """
@@ -66,6 +142,12 @@ class ResponsavelViewSet(viewsets.ModelViewSet):
         serializer = ResponsavelComMembrosSerializer(responsavel)
         return Response(serializer.data)
 
+    @extend_schema(
+        summary="Responsável com Demandas",
+        description="Retorna responsável com todas as demandas associadas (saúde, educação, habitação, etc.)",
+        tags=["Responsáveis"],
+        responses={200: ResponsavelComDemandasSerializer}
+    )
     @action(detail=True, methods=['get'])
     def com_demandas(self, request, pk=None):
         """
@@ -75,6 +157,27 @@ class ResponsavelViewSet(viewsets.ModelViewSet):
         serializer = ResponsavelComDemandasSerializer(responsavel)
         return Response(serializer.data)
 
+    @extend_schema(
+        summary="Buscar por CPF",
+        description="Busca responsável específico pelo CPF",
+        tags=["Responsáveis"],
+        parameters=[
+            OpenApiParameter(
+                name="cpf", 
+                description="CPF do responsável (apenas números)", 
+                type=str,
+                required=True,
+                examples=[
+                    OpenApiExample("CPF Válido", value="12345678901")
+                ]
+            )
+        ],
+        responses={
+            200: ResponsavelSerializer,
+            404: {"type": "object", "properties": {"detail": {"type": "string"}}},
+            400: {"type": "object", "properties": {"detail": {"type": "string"}}}
+        }
+    )
     @action(detail=False, methods=['get'])
     def buscar_por_cpf(self, request):
         """
@@ -93,9 +196,77 @@ class ResponsavelViewSet(viewsets.ModelViewSet):
                        status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Listar Membros",
+        description="Retorna uma lista paginada de membros familiares com filtros e busca",
+        tags=["Membros"],
+        parameters=[
+            OpenApiParameter(name="search", description="Buscar por CPF, nome ou nome do responsável", type=str),
+            OpenApiParameter(name="status", description="Filtrar por status", type=str),
+            OpenApiParameter(name="cpf_responsavel", description="Filtrar por CPF do responsável", type=str),
+            OpenApiParameter(name="ordering", description="Ordenar por campo (- para descendente)", type=str),
+            OpenApiParameter(name="page", description="Número da página", type=int),
+        ],
+        examples=[
+            OpenApiExample(
+                "Busca por nome",
+                value={"search": "Ana Silva"},
+                description="Buscar membros com nome contendo 'Ana Silva'"
+            ),
+            OpenApiExample(
+                "Filtro por responsável",
+                value={"cpf_responsavel": "12345678901"},
+                description="Filtrar membros de um responsável específico"
+            ),
+        ]
+    ),
+    create=extend_schema(
+        summary="Criar Membro",
+        description="Cria um novo membro familiar",
+        tags=["Membros"],
+        examples=[
+            OpenApiExample(
+                "Membro Completo",
+                value={
+                    "cpf": "98765432100",
+                    "nome": "Ana Silva",
+                    "cpf_responsavel": "12345678901",
+                    "data_nascimento": "2010-05-15",
+                    "genero": "F",
+                    "status": "ativo"
+                },
+                description="Exemplo de criação de membro"
+            ),
+        ]
+    ),
+    retrieve=extend_schema(
+        summary="Obter Membro",
+        description="Retorna detalhes de um membro específico",
+        tags=["Membros"]
+    ),
+    update=extend_schema(
+        summary="Atualizar Membro",
+        description="Atualiza todos os campos de um membro",
+        tags=["Membros"]
+    ),
+    partial_update=extend_schema(
+        summary="Atualizar Membro Parcialmente",
+        description="Atualiza campos específicos de um membro",
+        tags=["Membros"]
+    ),
+    destroy=extend_schema(
+        summary="Excluir Membro",
+        description="Remove um membro do sistema",
+        tags=["Membros"]
+    ),
+)
 class MembroViewSet(viewsets.ModelViewSet):
     """
-    ViewSet para gerenciamento de Membros
+    ViewSet para gerenciamento de Membros Familiares
+    
+    Permite criar, listar, atualizar e excluir membros familiares.
+    Inclui funcionalidades de busca, filtro e ordenação.
     """
     queryset = Membro.objects.all()
     serializer_class = MembroSerializer
@@ -105,6 +276,26 @@ class MembroViewSet(viewsets.ModelViewSet):
     ordering_fields = ['nome', 'timestamp']
     ordering = ['-timestamp']
 
+    @extend_schema(
+        summary="Membros por Responsável",
+        description="Busca todos os membros de um responsável específico",
+        tags=["Membros"],
+        parameters=[
+            OpenApiParameter(
+                name="cpf_responsavel", 
+                description="CPF do responsável (apenas números)", 
+                type=str,
+                required=True,
+                examples=[
+                    OpenApiExample("CPF Válido", value="12345678901")
+                ]
+            )
+        ],
+        responses={
+            200: MembroSerializer,
+            400: {"type": "object", "properties": {"detail": {"type": "string"}}}
+        }
+    )
     @action(detail=False, methods=['get'])
     def por_responsavel(self, request):
         """
